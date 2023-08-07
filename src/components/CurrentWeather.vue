@@ -2,12 +2,20 @@
   import Sunrise from './icons/Sunrise.vue';
   import Sunset from './icons/Sunset.vue';
   import SearchField from './SearchField.vue';
+  import { onMounted } from "vue";
 
   const props = defineProps(['data', 'uv_index']);
   const { data, uv_index } = props;
-  console.log(uv_index)
   const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
   const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+
+  onMounted(() => {
+    const cityName = document.getElementsByClassName("city")[0];
+
+    if (cityName && cityName.offsetWidth > 290) {
+      cityName.classList.add("animate-city");
+    }
+  });
 </script>
 
 <template>
@@ -17,7 +25,10 @@
         <path d="M0 2C0 0.89543 0.895431 0 2 0H28C29.1046 0 30 0.895431 30 2V10H0V2Z" fill="#0085FF"/>
         <path d="M0 10H30V18C30 19.1046 29.1046 20 28 20H2C0.89543 20 0 19.1046 0 18V10Z" fill="#FFEE52"/>
       </svg>
-      <h2 class="city">{{ data.name }}</h2>
+      <div class="heading-container">
+        <span v-if="data.name > 10">{{ data.name }}</span>
+        <h2 class="city" :data-text="data.name">{{ data.name }}</h2>
+      </div>
       <div class="temp">
         <span class="real_temp">{{ Math.round(data.main.temp) }}&deg;C</span>
         <span class="feels_temp">{{ Math.round(data.main.feels_like) }}&deg;C</span>
@@ -90,16 +101,49 @@
     .header {
       font-family: $customFontFamily;
       position: relative;
+
       .ukraine_flag {
         position: absolute;
         top: 10px;
         right: 0;
       }
-      .city {
-        font-size: 38px;
-        font-weight: 500;
-        margin-bottom: -30px;
-        text-transform: uppercase;
+
+      .heading-container {
+        max-width: 290px;
+        overflow: hidden;
+
+        .animate-city {
+          animation: infinite city 4s linear;
+        }
+
+        .city {
+          font-size: 38px;
+          font-weight: 500;
+          margin-bottom: -30px;
+          text-transform: uppercase;
+          white-space: nowrap;
+          overflow: hidden;
+          display: inline-block;
+
+          @keyframes city {
+            0%, 100% {
+              transform: translateX(-100%);
+            }
+            100% {
+              transform: translateX(360px);
+            }
+          }
+
+          @keyframes animate-city {
+            0%, 100% {
+              transform: translateX(-300px);
+            }
+            100% {
+              transform: translateX(360px);
+            }
+          }
+
+        }
       }
 
       .temp {
