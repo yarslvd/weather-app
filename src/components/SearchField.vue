@@ -40,7 +40,6 @@ function changePlace() {
   }
 
   const location = place.geometry.location;
-  console.log(place.name);
   store.setCity(place.name);
   store.changeCoords(location.lat(), location.lng());
 }

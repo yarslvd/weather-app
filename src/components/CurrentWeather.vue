@@ -1,12 +1,16 @@
 <script setup>
+  import { onMounted } from "vue";
+
   import Sunrise from './icons/Sunrise.vue';
   import Sunset from './icons/Sunset.vue';
   import SearchField from './SearchField.vue';
-  import { onMounted } from "vue";
+  import selectIcon from "@/utils/selectIcon";
 
   const props = defineProps(['data', 'uv_index']);
   const { data, uv_index } = props;
-  const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
+  const options = { timeZoneName: 'short' };
+  const timezone = Intl.DateTimeFormat(undefined, options).resolvedOptions().timeZone;
+  const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit", timeZone: timezone })
   const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString("en-GB", { hour: "2-digit", minute: "2-digit" })
 
   onMounted(() => {
@@ -37,9 +41,7 @@
 
     <div class="main_info">
       <div class="illustration">
-        <svg xmlns="http://www.w3.org/2000/svg" width="159" height="159" viewBox="0 0 159 159" fill="none">
-          <circle cx="79.5" cy="79.5" r="79.5" fill="#FFDA57"/>
-        </svg>
+        <img :src='selectIcon(data.weather[0])' alt="Weather illustration" width="160">
         <span class="weather_description">{{ data.weather[0].description }}</span>
       </div>
       <div class="info">
@@ -77,7 +79,7 @@
         <div class="uv">
           <div class="graphic">
             <div class="line"></div>
-            <div class="dot" :style="{ left: uv_index.uvi.toFixed(1) * 10 + '%' }"></div>
+            <div class="dot" :style="{ left: uv_index.uvi.toFixed(1) / 12 * 100 + '%' }"></div>
           </div>
           <span class="uv_index" v-if="uv_index">{{ uv_index.uvi.toFixed(1) }}mW</span>
         </div>
@@ -170,6 +172,8 @@
       display: flex;
       gap: 3rem;
       align-items: center;
+      height: 190px;
+
       .illustration {
         display: flex;
         flex-direction: column;
@@ -199,7 +203,8 @@
     }
 
     .detailed_info {
-      margin-top: 80px;
+      margin-top: 68px;
+
       .detailed_item {
         .detailed_heading {
           font-size: 16px;
