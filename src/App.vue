@@ -23,21 +23,21 @@ const fetchData = async () => {
   loading.value = true;
   try {
     let response;
-    if(store.state.coords) {
+    if(!store.state.coords) {
       response = await axios.get(
           `https://api.openweathermap.org/data/2.5/weather?lat=${store.state.coords[0]}&lon=${store.state.coords[1]}&units=metric&appid=${import.meta.env.VITE_API_KEY_OPENWEATHER}&exclude=hourly`
       );
       data.value = response.data;
       console.log(response.data)
     }
-    // else {
-    //   response = await axios.get(
-    //       `https://api.openweathermap.org/data/2.5/weather?q=${store.state.city}&units=metric&appid=${import.meta.env.VITE_API_KEY_OPENWEATHER}&exclude=hourly`
-    //   );
-    //   data.value = response.data;
-    //   console.log(response.value)
-    //   // store.changeCoords(data.value, data.value);
-    // }
+    else {
+      response = await axios.get(
+          `https://api.openweathermap.org/data/2.5/weather?q=${store.state.city}&units=metric&appid=${import.meta.env.VITE_API_KEY_OPENWEATHER}&exclude=hourly`
+      );
+      data.value = response.data;
+      console.log(response.value)
+      // store.changeCoords(data.value, data.value);
+    }
 
     data.value = response.data;
     const uv_response = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${response.data.coord.lat}&lon=${response.data.coord.lon}&exclude=hourly,daily&appid=7830e15d5fae07b2db1be2733bd63647`);
@@ -80,7 +80,7 @@ watch(
       <CurrentWeather v-if="uv_index" :data="data" :uv_index="uv_index" :key="uv_index"/>
     </div>
     <div class="right-container">
-      <DetailedInfo />
+      <DetailedInfo :key="uv_index"/>
     </div>
   </main>
 </template>

@@ -12,6 +12,7 @@ const options = {
   fields: ["formatted_address", "geometry", "name"],
   strictBounds: false,
   types: ["(cities)"],
+  language: 'en',
 };
 
 onMounted(() => {

@@ -10,13 +10,12 @@
     Filler
   } from 'chart.js'
   import { Line } from 'vue-chartjs'
-  import {options, data} from '/src/utils/chartConfig'
+  import {options, data, plugins} from '/src/utils/chartConfig'
   import {inject, onMounted, ref, watch} from "vue";
   import axios from "axios";
 
   const store = inject("store");
   const loading = ref(false);
-  const dataChart = ref({});
 
   ChartJS.register(
       CategoryScale,
@@ -32,7 +31,7 @@
     try {
       const timeArr = [];
       const dataArr = [];
-      const chart = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${store.state.coords[0]}&longitude=${store.state.coords[1]}&hourly=temperature_2m&timezone=Europe%2FBerlin&forecast_days=1`);
+      const chart = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${store.state.coords[0]}&longitude=${store.state.coords[1]}&hourly=temperature_2m&timezone=auto&forecast_days=1`);
       chart.data.hourly.time.map((el, index) => {
         if (index % 2 === 0) {
           timeArr.push(new Date(el).toLocaleTimeString("en-GB", {hour: "2-digit"}));
@@ -72,8 +71,14 @@
 
 <template>
   <div class="container">
+    <h2 class="heading">Details</h2>
     <div class="chart_container" v-if="loading">
-      <Line :data="data" :options="options" :key="loading"/>
+      <div class="graph_temp">
+        <Line :data="data" :options="options" :plugins="plugins" />
+      </div>
+      <div class="smth">
+
+      </div>
     </div>
   </div>
 </template>
@@ -86,9 +91,30 @@
     border-radius: 25px;
     padding: 50px 35px;
 
+    .heading {
+      font-family: 'Montserrat', sans-serif;
+      margin-bottom: 10px;
+      font-weight: 600;
+      font-size: 26px;
+    }
+
     .chart_container {
-      height: 300px;
-      width: 70%;
+      height: 260px;
+      width: 100%;
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      grid-gap: 20px;
+
+      .graph_temp {
+
+      }
+
+      .smth {
+        width: 100%;
+        height: 100%;
+        background-color: #eaeaea;
+        border-radius: 15px;
+      }
     }
   }
 </style>

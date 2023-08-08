@@ -6,12 +6,12 @@ export const data = {
             data: [],
             borderColor: '#0085FF',
             pointBackgroundColor: '#0085FF',
-            pointRadius: 5,
-            pointBorderColor: '#fff',
+            pointRadius: 1,
+            // pointBorderColor: '#fff',
             hitRadius: 15,
             hoverRadius: 7,
-            pointBorderWidth: 1,
-            tension: 0.3,
+            // pointBorderWidth: 2,
+            tension: 0.4,
             borderCapStyle: 'butt',
             fill: {
                 target: true,
@@ -26,8 +26,6 @@ export const options = {
     maintainAspectRatio: false,
     plugins: {
         tooltip: {
-            xAlign: 'center',
-            yAlign: 'top',
             backgroundColor: 'rgba(0,0,0,0.6)',
         }
     },
@@ -43,5 +41,27 @@ export const options = {
                 }
             }
         }
+    },
+    interaction: {
+        intersect: false,
+        mode: 'index',
     }
 }
+
+export const plugins = [{
+    afterDraw: chart => {
+        if (chart.tooltip?._active?.length) {
+            let x = chart.tooltip._active[0].element.x;
+            let yAxis = chart.scales.y;
+            let ctx = chart.ctx;
+            ctx.save();
+            ctx.beginPath();
+            ctx.moveTo(x, yAxis.top);
+            ctx.lineTo(x, yAxis.bottom);
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = '#007be3';
+            ctx.stroke();
+            ctx.restore();
+        }
+    }
+}]
