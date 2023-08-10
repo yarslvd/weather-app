@@ -55,7 +55,7 @@ function changePlace() {
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
 .pac-container {
   &:after {
     display: none;

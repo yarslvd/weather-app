@@ -10,12 +10,15 @@
     Filler
   } from 'chart.js'
   import { Line } from 'vue-chartjs'
-  import {options, data, plugins} from '/src/utils/chartConfig'
   import {inject, onMounted, ref, watch} from "vue";
   import axios from "axios";
 
+  import Forecast from "@/components/ForecastCard.vue";
+  import {options, data, plugins} from '/src/utils/chartConfig';
+
   const store = inject("store");
   const loading = ref(false);
+  const forecastData = ref({});
 
   ChartJS.register(
       CategoryScale,
@@ -31,6 +34,7 @@
     try {
       const timeArr = [];
       const dataArr = [];
+
       const chart = await axios.get(`https://api.open-meteo.com/v1/forecast?latitude=${store.state.coords[0]}&longitude=${store.state.coords[1]}&hourly=temperature_2m&timezone=auto&forecast_days=1`);
       chart.data.hourly.time.map((el, index) => {
         if (index % 2 === 0) {
@@ -40,9 +44,12 @@
       data.datasets[0].data = chart.data.hourly.temperature_2m.map((el, index) => {
         if (index % 2 === 0) dataArr.push(el);
       });
-      console.log(data)
       data.labels = timeArr;
       data.datasets[0].data = dataArr;
+
+      const forecast = await axios.get(`https://api.openweathermap.org/data/2.5/onecall?lat=${store.state.coords[0]}&lon=${store.state.coords[1]}&appid=${import.meta.env.VITE_FORECAST_API_KEY}&exclude=hourly,minutely&units=metric`);
+      forecast.data.daily = forecast.data.daily.slice(0, 6);
+      forecastData.value = forecast.data;
     }
     catch(err) {
       console.error(err);
@@ -71,19 +78,24 @@
 
 <template>
   <div class="container">
-    <h2 class="heading">Details</h2>
-    <div class="chart_container" v-if="loading">
-      <div class="graph_temp">
-        <Line :data="data" :options="options" :plugins="plugins" />
+    <div class="forecast_container" v-if="forecastData">
+      <h1 class="heading">Forecast</h1>
+      <div class="forecast">
+        <Forecast v-for="(item, index) in forecastData.daily" :item="item" :key="item.dt"/>
       </div>
-      <div class="smth">
-
+    </div>
+    <div class="details_container">
+      <h1 class="heading">Details</h1>
+      <div class="chart_container" v-if="loading">
+        <div class="graph_temp">
+          <Line :data="data" :options="options" :plugins="plugins" />
+        </div>
       </div>
     </div>
   </div>
 </template>
 
-<style lang="scss">
+<style scoped lang="scss">
   .container {
     width: 100%;
     height: 100%;
@@ -93,27 +105,30 @@
 
     .heading {
       font-family: 'Montserrat', sans-serif;
-      margin-bottom: 10px;
       font-weight: 600;
-      font-size: 26px;
+      font-size: 24px;
     }
 
-    .chart_container {
-      height: 260px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      grid-gap: 20px;
-
-      .graph_temp {
-
+    .forecast_container {
+      .forecast {
+        display: flex;
+        justify-content: space-between;
       }
+    }
 
-      .smth {
+    .details_container {
+      margin-top: 20px;
+
+      .chart_container {
+        height: 250px;
         width: 100%;
-        height: 100%;
-        background-color: #eaeaea;
-        border-radius: 15px;
+        display: grid;
+        grid-template-columns: 2fr 1fr;
+        grid-gap: 30px;
+
+        .graph_temp {
+
+        }
       }
     }
   }

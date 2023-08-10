@@ -4,7 +4,7 @@ import axios from "axios";
 import { toast } from 'vue3-toastify';
 import 'vue3-toastify/dist/index.css';
 
-import CurrentWeather from "./components/CurrentWeather.vue";
+import CurrentWeather from "@/components/CurrentWeather.vue";
 import DetailedInfo from "@/components/DetailedInfo.vue";
 
 const store = inject("store");
@@ -88,7 +88,7 @@ watch(
 <style scoped lang="scss">
 .wrapper {
   display: grid;
-  grid-template-columns: 2fr 6fr;
+  grid-template-columns: 1fr 3fr;
   gap: 20px;
   height: 700px;
   max-width: 1470px;
