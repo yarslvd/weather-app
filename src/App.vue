@@ -6,6 +6,7 @@ import 'vue3-toastify/dist/index.css';
 
 import CurrentWeather from "@/components/CurrentWeather.vue";
 import DetailedInfo from "@/components/DetailedInfo.vue";
+import Loader from "@/components/Loader.vue";
 
 const store = inject("store");
 const data = ref(null);
@@ -45,6 +46,7 @@ const fetchData = async () => {
     } catch (error) {
     notify();
     console.error("Error fetching data:", error);
+    return;
   }
   loading.value = false;
 }
@@ -77,10 +79,16 @@ watch(
 <template>
   <main class="wrapper">
     <div class="left-container">
+      <div v-if="loading" class="loading_left">
+        <Loader />
+      </div>
       <CurrentWeather v-if="uv_index" :data="data" :uv_index="uv_index" :key="uv_index"/>
     </div>
     <div class="right-container">
-      <DetailedInfo :key="uv_index"/>
+      <div v-if="loading" class="loading_right">
+        <Loader />
+      </div>
+      <DetailedInfo :key="uv_index" v-if="uv_index"/>
     </div>
   </main>
 </template>
@@ -92,6 +100,25 @@ watch(
   gap: 20px;
   height: 700px;
   max-width: 1470px;
+
+  .loading_left {
+    width: 100%;
+    min-width: 400px;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 25px;
+    padding: 50px 35px;
+    position: relative;
+  }
+
+  .loading_right {
+    width: 100%;
+    height: 100%;
+    background-color: #fff;
+    border-radius: 25px;
+    padding: 50px 35px;
+    position: relative;
+  }
 
   .left-container {
     max-height: 700px;

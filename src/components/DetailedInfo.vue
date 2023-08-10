@@ -117,7 +117,7 @@
     }
 
     .details_container {
-      margin-top: 20px;
+      margin-top: 40px;
 
       .chart_container {
         height: 250px;
