@@ -1,55 +1,79 @@
 <script setup>
-import { onMounted } from "vue";
+import { inject, onMounted, ref, watch } from "vue";
+import axios from "axios";
 
 import Sunrise from "./icons/Sunrise.vue";
 import Sunset from "./icons/Sunset.vue";
 import SearchField from "./SearchField.vue";
+import Loader from "./Loader.vue";
+import UkranianFlag from "./icons/UkranianFlag.vue";
+
 import selectIcon from "@/utils/selectIcon";
+import { calculateSunTime } from "@/utils/calculateSunTime";
+import { errorNotification } from "@/utils/errorNotification";
 
-const props = defineProps(["data", "uv_index"]);
-const { data, uv_index } = props;
-const options = { timeZoneName: "short" };
-const timezone = Intl.DateTimeFormat(undefined, options).resolvedOptions()
-  .timeZone;
-const sunrise = new Date(data.sys.sunrise * 1000).toLocaleTimeString("en-GB", {
-  hour: "2-digit",
-  minute: "2-digit",
-  timeZone: timezone,
-});
-const sunset = new Date(data.sys.sunset * 1000).toLocaleTimeString("en-GB", {
-  hour: "2-digit",
-  minute: "2-digit",
-});
+const store = inject("store");
+const data = ref(null);
+const sunrise = ref(null);
+const sunset = ref(null);
+const uv_index = ref(null);
 
-onMounted(() => {
-  const cityName = document.getElementsByClassName("city")[0];
+const fetchData = async () => {
+  try {
+    const response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/weather?lat=${
+        store.state.coords[0]
+      }&lon=${store.state.coords[1]}&units=metric&appid=${
+        import.meta.env.VITE_API_KEY_OPENWEATHER
+      }&exclude=hourly`,
+    );
+    data.value = response.data;
 
-  if (cityName && cityName.offsetWidth > 290) {
-    cityName.classList.add("animate-city");
+    data.value = response.data;
+    const uv_response = await axios.get(
+      `https://api.openweathermap.org/data/2.5/onecall?lat=${response.data.coord.lat}&lon=${response.data.coord.lon}&exclude=hourly,daily&appid=7830e15d5fae07b2db1be2733bd63647`,
+    );
+    uv_index.value = uv_response.data.current;
+
+    const cityName = document.getElementsByClassName("city")[0];
+    if (cityName && cityName.offsetWidth > 290) {
+      cityName.classList.add("animate-city");
+    } else {
+      cityName.classList.remove("animate-city");
+    }
+  } catch (error) {
+    errorNotification("Error, nothing has been found");
+    console.error("Error fetching data:", error);
+    return;
   }
+};
+
+onMounted(async () => {
+  navigator.geolocation.getCurrentPosition((location) => {
+    if (location.coords.latitude && location.coords.longitude) {
+      store.changeCoords(location.coords.latitude, location.coords.longitude);
+    }
+  });
+  await fetchData();
+
+  sunrise.value = calculateSunTime(data.value.sys.sunrise);
+  sunset.value = calculateSunTime(data.value.sys.sunset);
 });
+
+watch(
+  () => store.state.coords || store.state.city,
+  async () => {
+    await fetchData();
+  },
+  { deep: true },
+);
 </script>
 
 <template>
   <div class="container">
+    <Loader v-if="!data" />
     <div class="header" v-if="data">
-      <svg
-        xmlns="http://www.w3.org/2000/svg"
-        width="30"
-        height="20"
-        viewBox="0 0 30 20"
-        fill="none"
-        class="ukraine_flag"
-      >
-        <path
-          d="M0 2C0 0.89543 0.895431 0 2 0H28C29.1046 0 30 0.895431 30 2V10H0V2Z"
-          fill="#0085FF"
-        />
-        <path
-          d="M0 10H30V18C30 19.1046 29.1046 20 28 20H2C0.89543 20 0 19.1046 0 18V10Z"
-          fill="#FFEE52"
-        />
-      </svg>
+      <UkranianFlag />
       <div class="heading-container">
         <span v-if="data.name > 10">{{ data.name }}</span>
         <h2 class="city" :data-text="data.name">{{ data.name }}</h2>
@@ -93,19 +117,20 @@ onMounted(() => {
       <div class="detailed_item">
         <span class="detailed_heading">Sunrise and sunset</span>
         <div class="sun">
-          <div class="sun_item">
+          <Loader v-if="!sunrise && !sunset" />
+          <div class="sun_item" v-if="sunrise">
             <Sunrise />
-            <span class="sun_time" v-if="sunrise">{{ sunrise }}</span>
+            <span class="sun_time">{{ sunrise }}</span>
           </div>
-          <div class="sun_item">
+          <div class="sun_item" v-if="sunset">
             <Sunset />
-            <span class="sun_time" v-if="sunset">{{ sunset }}</span>
+            <span class="sun_time">{{ sunset }}</span>
           </div>
         </div>
       </div>
       <div class="detailed_item">
         <span class="detailed_heading">UV Index</span>
-        <div class="uv">
+        <div class="uv" v-if="uv_index">
           <div class="graphic">
             <div class="line"></div>
             <div
@@ -113,14 +138,12 @@ onMounted(() => {
               :style="{ left: (uv_index.uvi.toFixed(1) / 12) * 100 + '%' }"
             ></div>
           </div>
-          <span class="uv_index" v-if="uv_index"
-            >{{ uv_index.uvi.toFixed(1) }}mW</span
-          >
+          <span class="uv_index">{{ uv_index.uvi.toFixed(1) }}mW </span>
         </div>
       </div>
     </div>
 
-    <SearchField />
+    <SearchField v-if="uv_index" />
   </div>
 </template>
 

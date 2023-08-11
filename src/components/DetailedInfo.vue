@@ -104,14 +104,14 @@ watch(
         <Support />
       </div>
     </div>
-    <div class="details_container">
-      <h1 class="heading">Details</h1>
-      <div v-if="loading" class="chart_container">
-        <div class="graph_temp">
-          <Line :data="data" :options="options" :plugins="plugins" />
-        </div>
-      </div>
-    </div>
+    <!--    <div class="details_container">-->
+    <!--      <h1 class="heading">Details</h1>-->
+    <!--      <div v-if="loading" class="chart_container">-->
+    <!--        <div class="graph_temp">-->
+    <!--          <Line :data="data" :options="options" :plugins="plugins" />-->
+    <!--        </div>-->
+    <!--      </div>-->
+    <!--    </div>-->
   </div>
 </template>
 
@@ -131,6 +131,7 @@ watch(
     font-weight: 600;
     letter-spacing: 0.7px;
     font-size: 24px;
+    color: #949494;
   }
 
   .forecast_container {
