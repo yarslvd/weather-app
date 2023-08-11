@@ -1,6 +1,6 @@
 <script setup>
-import { toast } from 'vue3-toastify';
-import 'vue3-toastify/dist/index.css';
+import { toast } from "vue3-toastify";
+import "vue3-toastify/dist/index.css";
 import { onMounted, ref, inject } from "vue";
 import Search from "./icons/Search.vue";
 const store = inject("store");
@@ -12,13 +12,13 @@ const options = {
   fields: ["formatted_address", "geometry", "name"],
   strictBounds: false,
   types: ["(cities)"],
-  language: 'en',
+  language: "en",
 };
 
 onMounted(() => {
   originAutocomplete = new google.maps.places.Autocomplete(
-      autocomplete.value,
-      options
+    autocomplete.value,
+    options,
   );
 
   originAutocomplete.addListener("place_changed", () => {
@@ -31,7 +31,7 @@ const notify = () => {
     autoClose: 1000,
     position: toast.POSITION.TOP_RIGHT,
   });
-}
+};
 
 function changePlace() {
   const place = originAutocomplete.getPlace();
@@ -48,20 +48,25 @@ function changePlace() {
 
 <template>
   <div class="search">
-    <input ref="autocomplete" type="text" class="input" placeholder="Search for city..." />
+    <input
+      ref="autocomplete"
+      type="text"
+      class="input"
+      placeholder="Search for city..."
+    />
     <button class="btn_search" @click="changePlace()">
       <Search class="icon" />
     </button>
   </div>
 </template>
 
-<style scoped lang="scss">
+<style lang="scss">
 .pac-container {
   &:after {
     display: none;
   }
 
-  border: 1px solid rgba(0, 0, 0, 0.10);
+  border: 1px solid rgba(0, 0, 0, 0.1);
   box-sizing: border-box;
   border-radius: 10px;
   margin-top: 5px;
@@ -78,9 +83,9 @@ function changePlace() {
     .pac-matched {
       background-color: rgba(0, 133, 255, 1);
       padding: 2px;
-      color: #F1F1F1;
+      color: #f1f1f1;
       border-radius: 2px;
-      font-family: 'Montserrat', sans-serif;
+      font-family: "Montserrat", sans-serif;
       font-weight: 600;
     }
 
@@ -94,7 +99,7 @@ function changePlace() {
   position: relative;
   width: 100%;
   margin-top: 20px;
-  
+
   .input {
     &:focus {
       outline: none;
@@ -106,7 +111,7 @@ function changePlace() {
     background-color: #f2f2f2;
     border: none;
     padding: 0 45px 0 20px;
-    font-family: 'Montserrat', sans-serif;
+    font-family: "Montserrat", sans-serif;
   }
 
   .btn_search {
