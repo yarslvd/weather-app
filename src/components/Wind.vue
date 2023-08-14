@@ -1,10 +1,8 @@
 <script setup>
-const props = defineProps(["data"]);
-const { data } = props;
-
 import { selectTextDirection, selectArrow } from "@/utils/windUtils";
 
-console.log(data);
+const props = defineProps(["data"]);
+const { data } = props;
 </script>
 
 <template>

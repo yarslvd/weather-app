@@ -5,5 +5,5 @@ export const selectTextDirection = (degree) => {
 
 export const selectArrow = (degree) => {
   const directions = ["🡹", "🡽", "🡺", "🡾", "🡻", "🡿", "🡸", "🡼"];
-  return directions[Math.round(degree / 45) % 16] || "🡹";
+  return directions[Math.round(degree / 45) % 16] || "🡼";
 };

@@ -61,6 +61,7 @@ const fetchData = async () => {
     );
     data.labels = timeArr;
     data.datasets[0].data = dataArr;
+    console.log(data);
 
     const forecast = await axios.get(
       `https://api.openweathermap.org/data/2.5/onecall?lat=${
@@ -74,7 +75,6 @@ const fetchData = async () => {
     wind.value.speed = forecast.data.current.wind_speed;
     wind.value.direction = forecast.data.current.wind_deg;
     dew_point.value = forecast.data.current.dew_point;
-    console.log(forecastData.value);
   } catch (err) {
     console.error(err);
     errorNotification("Error while loading data");
@@ -104,7 +104,9 @@ watch(
   <div class="container">
     <div class="forecast_container">
       <h1 class="heading">Forecast</h1>
-      <Loader v-if="!forecastData" />
+      <div v-if="!forecastData" style="height: 190px">
+        <Loader />
+      </div>
       <div class="info_container" v-if="forecastData">
         <div class="forecast">
           <Forecast
@@ -118,10 +120,16 @@ watch(
     </div>
     <div class="details_container">
       <h1 class="heading">Details</h1>
-      <div v-if="loading" class="chart_container">
+      <Loader v-if="!forecastData" />
+      <div v-if="forecastData" class="chart_container">
         <div class="upper">
           <div class="graph_temp">
-            <Line :data="data" :options="options" :plugins="plugins" />
+            <Line
+              :data="data"
+              :options="options"
+              :plugins="plugins"
+              :key="data.labels"
+            />
           </div>
           <div class="wind_container">
             <Wind :data="wind" />
@@ -173,10 +181,10 @@ watch(
         display: grid;
         grid-template-columns: 4fr 2fr;
         height: 200px;
-        gap: 40px;
+        gap: 25px;
 
         .graph_temp {
-          max-width: 550px;
+          max-width: 625px;
           height: 200px;
         }
 
@@ -186,6 +194,7 @@ watch(
           display: flex;
           flex-direction: column;
           justify-content: center;
+          align-items: center;
           gap: 10px;
 
           .heading_card {
