@@ -31,7 +31,11 @@ const fetchData = async () => {
 
     data.value = response.data;
     const uv_response = await axios.get(
-      `https://api.openweathermap.org/data/2.5/onecall?lat=${response.data.coord.lat}&lon=${response.data.coord.lon}&exclude=hourly,daily&appid=7830e15d5fae07b2db1be2733bd63647`,
+      `https://api.openweathermap.org/data/2.5/onecall?lat=${
+        response.data.coord.lat
+      }&lon=${response.data.coord.lon}&exclude=hourly,daily&appid=${
+        import.meta.env.VITE_FORECAST_API_KEY
+      }`,
     );
     uv_index.value = uv_response.data.current;
 
@@ -235,6 +239,15 @@ $customFontFamily: "Kharkiv Tone", sans-serif;
     .illustration {
       display: flex;
       flex-direction: column;
+
+      img {
+        -webkit-user-drag: none;
+        user-select: none;
+        -moz-user-select: none;
+        -webkit-user-select: none;
+        -ms-user-select: none;
+      }
+
       .weather_description {
         font-family: $customFontFamily;
         font-size: 15px;

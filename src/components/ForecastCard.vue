@@ -41,6 +41,11 @@ const date = new Date(item.dt * 1000).toLocaleString("en-GB", {
 
   .illustration {
     align-self: center;
+    -webkit-user-drag: none;
+    user-select: none;
+    -moz-user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
   }
 
   .temp {

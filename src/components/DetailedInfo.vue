@@ -1,4 +1,6 @@
 <script setup>
+import { inject, onMounted, ref, watch } from "vue";
+import axios from "axios";
 import {
   CategoryScale,
   Chart as ChartJS,
@@ -10,17 +12,22 @@ import {
   Tooltip,
 } from "chart.js";
 import { Line } from "vue-chartjs";
-import { inject, onMounted, ref, watch } from "vue";
-import axios from "axios";
 
 import Forecast from "@/components/ForecastCard.vue";
 import Support from "@/components/Support.vue";
+import Wind from "@/components/Wind.vue";
+import DewPoint from "@/components/DewPoint.vue";
+import Loader from "./Loader.vue";
+
 import { data, options, plugins } from "/src/utils/chartConfig";
 import { detailedInfoVars } from "@/constants";
+import { errorNotification } from "@/utils/errorNotification";
 
 const store = inject("store");
 const loading = ref(false);
-const forecastData = ref({});
+const forecastData = ref(null);
+const wind = ref({});
+const dew_point = ref({});
 
 ChartJS.register(
   CategoryScale,
@@ -64,9 +71,13 @@ const fetchData = async () => {
     );
     forecast.data.daily = forecast.data.daily.slice(0, 5);
     forecastData.value = forecast.data;
+    wind.value.speed = forecast.data.current.wind_speed;
+    wind.value.direction = forecast.data.current.wind_deg;
+    dew_point.value = forecast.data.current.dew_point;
     console.log(forecastData.value);
   } catch (err) {
     console.error(err);
+    errorNotification("Error while loading data");
   }
 };
 
@@ -91,9 +102,10 @@ watch(
 
 <template>
   <div class="container">
-    <div v-if="forecastData" class="forecast_container">
+    <div class="forecast_container">
       <h1 class="heading">Forecast</h1>
-      <div class="info_container">
+      <Loader v-if="!forecastData" />
+      <div class="info_container" v-if="forecastData">
         <div class="forecast">
           <Forecast
             v-for="item in forecastData.daily"
@@ -104,14 +116,20 @@ watch(
         <Support />
       </div>
     </div>
-    <!--    <div class="details_container">-->
-    <!--      <h1 class="heading">Details</h1>-->
-    <!--      <div v-if="loading" class="chart_container">-->
-    <!--        <div class="graph_temp">-->
-    <!--          <Line :data="data" :options="options" :plugins="plugins" />-->
-    <!--        </div>-->
-    <!--      </div>-->
-    <!--    </div>-->
+    <div class="details_container">
+      <h1 class="heading">Details</h1>
+      <div v-if="loading" class="chart_container">
+        <div class="upper">
+          <div class="graph_temp">
+            <Line :data="data" :options="options" :plugins="plugins" />
+          </div>
+          <div class="wind_container">
+            <Wind :data="wind" />
+            <DewPoint :data="dew_point" />
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
@@ -124,7 +142,7 @@ watch(
   padding: 50px 35px;
   display: flex;
   flex-direction: column;
-  justify-content: space-between;
+  gap: 20px;
 
   .heading {
     font-family: "Montserrat", sans-serif;
@@ -148,14 +166,44 @@ watch(
   }
 
   .details_container {
-    .chart_container {
-      height: 250px;
-      width: 100%;
-      display: grid;
-      grid-template-columns: 2fr 1fr;
-      grid-gap: 30px;
+    height: 100%;
 
-      .graph_temp {
+    .chart_container {
+      .upper {
+        display: grid;
+        grid-template-columns: 4fr 2fr;
+        height: 200px;
+        gap: 40px;
+
+        .graph_temp {
+          max-width: 550px;
+          height: 200px;
+        }
+
+        .wind_container {
+          height: 100%;
+          width: 100%;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+          gap: 10px;
+
+          .heading_card {
+            font-weight: 600;
+            color: #949494;
+            font-size: 18px;
+          }
+
+          .content {
+            display: flex;
+            align-items: center;
+            height: calc(100%);
+            .wind_speed {
+              font-family: "Kharkiv Tone", sans-serif;
+              font-size: 40px;
+            }
+          }
+        }
       }
     }
   }

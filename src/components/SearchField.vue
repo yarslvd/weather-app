@@ -1,10 +1,11 @@
 <script setup>
-import { toast } from "vue3-toastify";
-import "vue3-toastify/dist/index.css";
 import { onMounted, ref, inject } from "vue";
-import Search from "./icons/Search.vue";
-const store = inject("store");
 
+import Search from "./icons/Search.vue";
+
+import { errorNotification } from "@/utils/errorNotification";
+
+const store = inject("store");
 const autocomplete = ref(null);
 let originAutocomplete;
 
@@ -26,23 +27,17 @@ onMounted(() => {
   });
 });
 
-const notify = () => {
-  toast.error("Nothing found", {
-    autoClose: 1000,
-    position: toast.POSITION.TOP_RIGHT,
-  });
-};
-
 function changePlace() {
   const place = originAutocomplete.getPlace();
   if (!place?.geometry) {
-    notify();
+    errorNotification("Nothing found");
     return;
   }
 
   const location = place.geometry.location;
   store.setCity(place.name);
   store.changeCoords(location.lat(), location.lng());
+  autocomplete.value.value = "";
 }
 </script>
 
