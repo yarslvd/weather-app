@@ -12,6 +12,7 @@ import selectIcon from "@/utils/selectIcon";
 import { calculateSunTime } from "@/utils/calculateSunTime";
 import { errorNotification } from "@/utils/errorNotification";
 
+const isSupported = "navigator" in window && "geolocation" in navigator;
 const store = inject("store");
 const data = ref(null);
 const sunrise = ref(null);
@@ -28,8 +29,13 @@ const fetchData = async () => {
       }&exclude=hourly`,
     );
     data.value = response.data;
-
+    sunrise.value = calculateSunTime(
+      data.value.sys.sunrise,
+      data.value.timezone,
+    );
+    sunset.value = calculateSunTime(data.value.sys.sunset, data.value.timezone);
     data.value = response.data;
+    console.log(data.value);
     const uv_response = await axios.get(
       `https://api.openweathermap.org/data/2.5/onecall?lat=${
         response.data.coord.lat
@@ -53,15 +59,16 @@ const fetchData = async () => {
 };
 
 onMounted(async () => {
-  navigator.geolocation.getCurrentPosition((location) => {
-    if (location.coords.latitude && location.coords.longitude) {
-      store.changeCoords(location.coords.latitude, location.coords.longitude);
-    }
-  });
-  await fetchData();
-
-  sunrise.value = calculateSunTime(data.value.sys.sunrise);
-  sunset.value = calculateSunTime(data.value.sys.sunset);
+  if (isSupported) {
+    navigator.geolocation.getCurrentPosition((location) => {
+      if (location.coords.latitude && location.coords.longitude) {
+        store.changeCoords(location.coords.latitude, location.coords.longitude);
+      }
+    });
+  }
+  // await fetchData();
+  // sunrise.value = calculateSunTime(data.value.sys.sunrise, data.value.timezone);
+  // sunset.value = calculateSunTime(data.value.sys.sunset, data.value.timezone);
 });
 
 watch(
@@ -77,10 +84,15 @@ watch(
   <div class="container">
     <Loader v-if="!data" />
     <div class="header" v-if="data">
-      <UkranianFlag />
-      <div class="heading-container">
+      <UkranianFlag v-if="data.sys.country === 'UA'" />
+      <div
+        class="heading-container"
+        :style="[data.sys.country !== 'UA' && { 'max-width': '330px' }]"
+      >
         <span v-if="data.name > 10">{{ data.name }}</span>
-        <h2 class="city" :data-text="data.name">{{ data.name }}</h2>
+        <h2 class="city" :data-text="data.name">
+          {{ data.name }}
+        </h2>
       </div>
       <div class="temp">
         <span class="real_temp">{{ Math.round(data.main.temp) }}&deg;C</span>
@@ -126,7 +138,7 @@ watch(
             <Sunrise />
             <span class="sun_time">{{ sunrise }}</span>
           </div>
-          <div class="sun_item" v-if="sunset">
+          <div class="sun_item">
             <Sunset />
             <span class="sun_time">{{ sunset }}</span>
           </div>
@@ -182,7 +194,7 @@ $customFontFamily: "Kharkiv Tone", sans-serif;
       .city {
         font-size: 38px;
         font-weight: 500;
-        margin-bottom: -30px;
+        max-height: 40px;
         text-transform: uppercase;
         white-space: nowrap;
         overflow: hidden;
@@ -274,7 +286,7 @@ $customFontFamily: "Kharkiv Tone", sans-serif;
   }
 
   .detailed_info {
-    margin-top: 68px;
+    margin-top: 60px;
 
     .detailed_item {
       .detailed_heading {

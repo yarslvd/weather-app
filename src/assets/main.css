@@ -1,11 +1,10 @@
-@import './base.css';
+@import "./base.css";
 
 #app {
   display: flex;
   align-items: center;
   justify-content: center;
   height: 100vh;
-  padding: 2rem;
   font-weight: normal;
-  background-color: #F1F1F1;
+  background-color: #f1f1f1;
 }

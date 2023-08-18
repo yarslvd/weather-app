@@ -71,4 +71,10 @@
     }
   }
 }
+
+@media (max-width: 1310px) {
+  .link_help {
+    width: 100px;
+  }
+}
 </style>

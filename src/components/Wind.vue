@@ -8,7 +8,7 @@ const { data } = props;
 <template>
   <div class="container_wind">
     <div class="direction">
-      <span>{{ selectArrow(data.direction) }}</span>
+      <span v-html="selectArrow(data.direction)"></span>
     </div>
     <div class="info">
       <span class="speed">{{ data.speed.toFixed(1) }}m/s</span>

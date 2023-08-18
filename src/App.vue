@@ -21,5 +21,6 @@ import DetailedInfo from "@/components/DetailedInfo.vue";
   gap: 20px;
   height: 700px;
   max-width: 1470px;
+  padding: 0 20px;
 }
 </style>

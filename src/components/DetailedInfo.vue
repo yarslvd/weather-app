@@ -61,7 +61,6 @@ const fetchData = async () => {
     );
     data.labels = timeArr;
     data.datasets[0].data = dataArr;
-    console.log(data);
 
     const forecast = await axios.get(
       `https://api.openweathermap.org/data/2.5/onecall?lat=${
@@ -167,7 +166,8 @@ watch(
       gap: 20px;
 
       .forecast {
-        display: flex;
+        display: grid;
+        grid-template-columns: repeat(5, 1fr);
         justify-content: space-between;
       }
     }
@@ -213,6 +213,18 @@ watch(
             }
           }
         }
+      }
+    }
+  }
+}
+
+@media (max-width: 1310px) {
+  .container {
+    .forecast_container {
+      .info_container {
+        display: flex;
+        flex-direction: column;
+        gap: 20px;
       }
     }
   }
